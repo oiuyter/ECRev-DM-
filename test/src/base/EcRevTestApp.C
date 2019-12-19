@@ -1,0 +1,63 @@
+//* This file is part of the MOOSE framework
+//* https://www.mooseframework.org
+//*
+//* All rights reserved, see COPYRIGHT for full restrictions
+//* https://github.com/idaholab/moose/blob/master/COPYRIGHT
+//*
+//* Licensed under LGPL 2.1, please see LICENSE for details
+//* https://www.gnu.org/licenses/lgpl-2.1.html
+#include "EcRevTestApp.h"
+#include "EcRevApp.h"
+#include "Moose.h"
+#include "AppFactory.h"
+#include "MooseSyntax.h"
+#include "ModulesApp.h"
+
+template <>
+InputParameters
+validParams<EcRevTestApp>()
+{
+  InputParameters params = validParams<EcRevApp>();
+  return params;
+}
+
+EcRevTestApp::EcRevTestApp(InputParameters parameters) : MooseApp(parameters)
+{
+  EcRevTestApp::registerAll(
+      _factory, _action_factory, _syntax, getParam<bool>("allow_test_objects"));
+}
+
+EcRevTestApp::~EcRevTestApp() {}
+
+void
+EcRevTestApp::registerAll(Factory & f, ActionFactory & af, Syntax & s, bool use_test_objs)
+{
+  EcRevApp::registerAll(f, af, s);
+  if (use_test_objs)
+  {
+    Registry::registerObjectsTo(f, {"EcRevTestApp"});
+    Registry::registerActionsTo(af, {"EcRevTestApp"});
+  }
+}
+
+void
+EcRevTestApp::registerApps()
+{
+  registerApp(EcRevApp);
+  registerApp(EcRevTestApp);
+}
+
+/***************************************************************************************************
+ *********************** Dynamic Library Entry Points - DO NOT MODIFY ******************************
+ **************************************************************************************************/
+// External entry point for dynamic application loading
+extern "C" void
+EcRevTestApp__registerAll(Factory & f, ActionFactory & af, Syntax & s)
+{
+  EcRevTestApp::registerAll(f, af, s);
+}
+extern "C" void
+EcRevTestApp__registerApps()
+{
+  EcRevTestApp::registerApps();
+}
